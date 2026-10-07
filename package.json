@@ -1,0 +1,12 @@
+{
+  "name": "career-trial-kit",
+  "version": "3.0.0",
+  "private": true,
+  "description": "An offline career trial kit with seven 45-minute exercises.",
+  "scripts": {
+    "test": "node tests/run.cjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

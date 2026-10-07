@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>安全分析 · 离线证据桌面</title>
+<style>
+:root{color-scheme:light;--paper:#f5f4ed;--ink:#183934;--muted:#50655e;--line:#ced5ca;--accent:#176554}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1180px;margin:auto;padding:32px 24px 48px}a{color:var(--accent);text-underline-offset:3px}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid #db862a;outline-offset:3px}h1{font-size:clamp(26px,4vw,40px);line-height:1.2;margin:14px 0}h2{font-size:22px;margin:28px 0 12px}.tag{font-size:12px;letter-spacing:.12em;font-weight:750;color:var(--accent)}.note{max-width:880px;color:var(--muted)}nav{display:flex;gap:18px;flex-wrap:wrap;margin:18px 0}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{background:#fffef8;border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}.card h3{font-size:17px;margin:0}.card p{font-size:14px;margin:0;color:var(--muted);overflow-wrap:anywhere}.card button{align-self:flex-start;margin-top:auto}.filters{display:flex;flex-wrap:wrap;gap:14px;align-items:end;padding:18px;background:#e9eee5;border:1px solid var(--line);border-radius:12px}.field{display:flex;flex-direction:column;gap:4px;min-width:180px;flex:1}.field.search{flex:2}label{font-size:14px;font-weight:650}input,select,button{font:inherit;border:1px solid #91a39a;border-radius:6px;padding:8px 10px;background:#fffef8;color:var(--ink)}input,select{width:100%;min-height:44px}button{cursor:pointer;min-height:44px;font-size:14px}button:hover{background:#e8f2e9}#count{margin:12px 0;color:var(--muted);font-size:14px}.table-scroll{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:#fffef8}table{border-collapse:collapse;min-width:1020px;width:100%;font-size:13px}th,td{text-align:left;border-bottom:1px solid #e1e5dc;padding:10px 12px;vertical-align:top}th{background:#e9eee5;white-space:nowrap}td small{display:block;color:var(--muted);font-size:12px}td code{font-size:12px;white-space:nowrap}caption{text-align:left;padding:12px;font-weight:650}#empty{padding:18px;background:#fffef8;border:1px dashed #91a39a;border-radius:10px}details{padding:12px 16px;margin-top:16px;border:1px solid var(--line);border-radius:10px;background:#fffef8}summary{cursor:pointer;font-weight:650}.terms{font-size:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 24px;margin:12px 0}.terms p{margin:0;overflow-wrap:anywhere}.foot{margin-top:24px;color:var(--muted);font-size:13px} [hidden]{display:none!important}@media(max-width:740px){main{padding:22px 16px 36px}.cards{grid-template-columns:1fr}.filters{padding:14px}.field{min-width:100%}.terms{grid-template-columns:1fr}nav{gap:12px}.card{gap:6px}}
+</style>
+</head>
+<body>
+<main>
+<span class="tag">TRIAGE / CORRELATE / HAND OFF</span>
+<h1>安全分析 · 离线证据桌面</h1>
+<p class="note">24条事件，6张告警。先写V1与两条上下文请求，再回主页打开模拟回复。这里只供查证和筛选，判断与交接写在主页记录中。</p>
+<nav aria-label="材料导航"><a href="../index.html#security">回试玩记录</a><a href="security-workflow.md">工作流与字段说明</a><a href="security-events.csv">事件CSV</a><a href="security-alerts.csv">告警CSV</a><a href="#events">跳到日志</a></nav>
+<p class="note">独立虚构协调后台：member可读演示排班，admin可导出虚构排班条目，service负责同步，monitor记录采集健康。全部时间为2026-10-07 +08:00；IP为文档示例。材料不含真实账号、凭据或个人资料。</p>
+<h2>告警队列</h2>
+<p class="note">告警时间是触发时间，10:36汇总材料可能关联稍后的事件。筛选只改变显示；关联一宗事件时，可切回全部日志或搜索关联号。</p>
+<div id="alerts" class="cards"></div>
+<h2 id="events">事件日志</h2>
+<div class="filters">
+  <div class="field"><label for="alert-filter">关联告警</label><select id="alert-filter"><option value="">全部告警 / 全部事件</option></select></div>
+  <div class="field"><label for="kind-filter">事件类型</label><select id="kind-filter"><option value="">全部类型</option><option value="login">login · 登录</option><option value="sync">sync · 同步</option><option value="read">read · 读取</option><option value="export">export · 导出</option><option value="log_health">log_health · 采集健康</option></select></div>
+  <div class="field search"><label for="query">搜索ID、设备、IP、关联号或原因</label><input id="query" type="search" placeholder="例如 admin_01 或 S40" autocomplete="off"></div>
+  <button id="reset" type="button">清空筛选</button>
+</div>
+<p id="count" role="status" aria-live="polite"></p>
+<p id="empty" hidden>没有匹配事件。可清空筛选再查；筛选结果为空不能证明相关活动不存在。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="事件表，可横向滚动">
+<table><caption>security-v1 · 原始事件（只读）</caption><thead><tr><th scope="col">E编号 / 时间</th><th scope="col">ID / 角色</th><th scope="col">IP / 设备</th><th scope="col">动作 / 资源</th><th scope="col">结果 / 原因</th><th scope="col">MFA</th><th scope="col">关联号</th></tr></thead><tbody id="event-rows"></tbody></table>
+</div>
+<details><summary>查证时需要的字段解释</summary><div class="terms"><p><b>success / failure / warning：</b>成功、失败、采集提示；不是攻击标签。</p><p><b>bad_password / invalid_credential：</b>密码或凭据未通过；原因未给。</p><p><b>passed / denied：</b>MFA完成 / 拒绝；未提供完整认证链，拒绝不证明密码正确。</p><p><b>not_reached：</b>未进入MFA；<b>not_required：</b>该次登录策略未要求MFA；<b>not_applicable：</b>该动作不单独记录MFA。</p><p><b>T关联号：</b>失败尝试；<b>S关联号：</b>成功会话与动作；<b>none：</b>监控无会话。不能由关联号认定操作者。</p><p><b>legacy_entry / heartbeat_gap：</b>旧入口 / 采集心跳异常。注意日志缺口与策略核查。</p></div></details>
+<p class="foot">失败次数、IP变化、MFA状态各自不能独立判攻击或安全。导出成功也不独立证明外传。保留事实、推测和缺口；本轮只提出建议，不执行处置。</p>
+<noscript><p>浏览器未启用JavaScript。请使用上方CSV或工作流中的完整事件表。</p></noscript>
+</main>
+<script id="security-data" type="application/json">{"events":[{"row_id":"E01","time":"2026-10-07T09:40:00+08:00","actor_id":"member_01","role":"member","source_ip":"192.0.2.10","device_id":"D01","event_type":"login","result":"success","reason":"credential_accepted","mfa":"passed","session_id":"S01","resource":"demo-calendar"},{"row_id":"E02","time":"2026-10-07T09:41:00+08:00","actor_id":"admin_01","role":"admin","source_ip":"192.0.2.11","device_id":"D10","event_type":"login","result":"success","reason":"credential_accepted","mfa":"passed","session_id":"S10","resource":"admin-console"},{"row_id":"E03","time":"2026-10-07T09:42:00+08:00","actor_id":"member_02","role":"member","source_ip":"192.0.2.12","device_id":"D04","event_type":"login","result":"success","reason":"credential_accepted","mfa":"passed","session_id":"S02","resource":"demo-calendar"},{"row_id":"E04","time":"2026-10-07T09:43:00+08:00","actor_id":"sync_01","role":"service","source_ip":"192.0.2.20","device_id":"D02","event_type":"sync","result":"success","reason":"credential_accepted","mfa":"not_applicable","session_id":"S03","resource":"demo-calendar"},{"row_id":"E05","time":"2026-10-07T10:02:00+08:00","actor_id":"member_01","role":"member","source_ip":"192.0.2.10","device_id":"D01","event_type":"login","result":"failure","reason":"bad_password","mfa":"not_reached","session_id":"T11","resource":"demo-calendar"},{"row_id":"E06","time":"2026-10-07T10:03:00+08:00","actor_id":"member_01","role":"member","source_ip":"192.0.2.10","device_id":"D01","event_type":"login","result":"failure","reason":"bad_password","mfa":"not_reached","session_id":"T11","resource":"demo-calendar"},{"row_id":"E07","time":"2026-10-07T10:04:00+08:00","actor_id":"member_01","role":"member","source_ip":"192.0.2.10","device_id":"D01","event_type":"login","result":"failure","reason":"bad_password","mfa":"not_reached","session_id":"T11","resource":"demo-calendar"},{"row_id":"E08","time":"2026-10-07T10:05:00+08:00","actor_id":"member_01","role":"member","source_ip":"192.0.2.10","device_id":"D01","event_type":"login","result":"success","reason":"credential_accepted","mfa":"passed","session_id":"S11","resource":"demo-calendar"},{"row_id":"E09","time":"2026-10-07T10:06:00+08:00","actor_id":"member_01","role":"member","source_ip":"192.0.2.10","device_id":"D01","event_type":"read","result":"success","reason":"allowed","mfa":"not_applicable","session_id":"S11","resource":"demo-calendar"},{"row_id":"E10","time":"2026-10-07T10:07:00+08:00","actor_id":"sync_01","role":"service","source_ip":"192.0.2.20","device_id":"D02","event_type":"sync","result":"failure","reason":"invalid_credential","mfa":"not_applicable","session_id":"T12","resource":"demo-calendar"},{"row_id":"E11","time":"2026-10-07T10:08:00+08:00","actor_id":"sync_01","role":"service","source_ip":"192.0.2.20","device_id":"D02","event_type":"sync","result":"failure","reason":"invalid_credential","mfa":"not_applicable","session_id":"T12","resource":"demo-calendar"},{"row_id":"E12","time":"2026-10-07T10:09:00+08:00","actor_id":"sync_01","role":"service","source_ip":"192.0.2.20","device_id":"D02","event_type":"sync","result":"failure","reason":"invalid_credential","mfa":"not_applicable","session_id":"T12","resource":"demo-calendar"},{"row_id":"E13","time":"2026-10-07T10:10:00+08:00","actor_id":"sync_01","role":"service","source_ip":"192.0.2.20","device_id":"D02","event_type":"sync","result":"failure","reason":"invalid_credential","mfa":"not_applicable","session_id":"T12","resource":"demo-calendar"},{"row_id":"E14","time":"2026-10-07T10:12:00+08:00","actor_id":"member_02","role":"member","source_ip":"198.51.100.24","device_id":"D03","event_type":"login","result":"success","reason":"credential_accepted","mfa":"passed","session_id":"S20","resource":"demo-calendar"},{"row_id":"E15","time":"2026-10-07T10:13:00+08:00","actor_id":"member_02","role":"member","source_ip":"198.51.100.24","device_id":"D03","event_type":"read","result":"success","reason":"allowed","mfa":"not_applicable","session_id":"S20","resource":"demo-calendar"},{"row_id":"E16","time":"2026-10-07T10:20:00+08:00","actor_id":"member_03","role":"member","source_ip":"203.0.113.70","device_id":"D90","event_type":"login","result":"failure","reason":"bad_password","mfa":"not_reached","session_id":"T31","resource":"demo-calendar"},{"row_id":"E17","time":"2026-10-07T10:21:00+08:00","actor_id":"member_04","role":"member","source_ip":"203.0.113.70","device_id":"D90","event_type":"login","result":"failure","reason":"bad_password","mfa":"not_reached","session_id":"T32","resource":"demo-calendar"},{"row_id":"E18","time":"2026-10-07T10:22:00+08:00","actor_id":"admin_01","role":"admin","source_ip":"203.0.113.70","device_id":"D90","event_type":"login","result":"failure","reason":"bad_password","mfa":"not_reached","session_id":"T33","resource":"admin-console"},{"row_id":"E19","time":"2026-10-07T10:23:00+08:00","actor_id":"admin_01","role":"admin","source_ip":"203.0.113.70","device_id":"D90","event_type":"login","result":"failure","reason":"bad_password","mfa":"not_reached","session_id":"T34","resource":"admin-console"},{"row_id":"E20","time":"2026-10-07T10:24:00+08:00","actor_id":"admin_01","role":"admin","source_ip":"203.0.113.70","device_id":"D90","event_type":"login","result":"success","reason":"legacy_entry","mfa":"not_required","session_id":"S40","resource":"admin-console"},{"row_id":"E21","time":"2026-10-07T10:25:00+08:00","actor_id":"admin_01","role":"admin","source_ip":"203.0.113.70","device_id":"D90","event_type":"read","result":"success","reason":"allowed","mfa":"not_applicable","session_id":"S40","resource":"admin-console"},{"row_id":"E22","time":"2026-10-07T10:26:00+08:00","actor_id":"admin_01","role":"admin","source_ip":"203.0.113.70","device_id":"D90","event_type":"export","result":"success","reason":"allowed","mfa":"not_applicable","session_id":"S40","resource":"demo-roster"},{"row_id":"E23","time":"2026-10-07T10:30:00+08:00","actor_id":"member_05","role":"member","source_ip":"198.51.100.50","device_id":"D05","event_type":"login","result":"failure","reason":"mfa_denied","mfa":"denied","session_id":"T50","resource":"demo-calendar"},{"row_id":"E24","time":"2026-10-07T10:31:00+08:00","actor_id":"collector_01","role":"monitor","source_ip":"192.0.2.99","device_id":"LOG01","event_type":"log_health","result":"warning","reason":"heartbeat_gap","mfa":"not_applicable","session_id":"none","resource":"sign-in-log"}],"alerts":[{"alert_id":"A01","time":"2026-10-07T10:05:00+08:00","title":"同账号失败后成功","actors":"member_01","event_rows":"E01|E05|E06|E07|E08|E09","signal":"三次密码失败后成功"},{"alert_id":"A02","time":"2026-10-07T10:10:00+08:00","title":"同步账号连续失败","actors":"sync_01","event_rows":"E04|E10|E11|E12|E13","signal":"周期同步连续凭据失败"},{"alert_id":"A03","time":"2026-10-07T10:13:00+08:00","title":"新设备登录","actors":"member_02","event_rows":"E03|E14|E15","signal":"与历史样本设备和出口不同"},{"alert_id":"A04","time":"2026-10-07T10:24:00+08:00","title":"多账号失败后管理员成功","actors":"member_03|member_04|admin_01","event_rows":"E16|E17|E18|E19|E20","signal":"同设备及出口涉及多账号与管理员成功"},{"alert_id":"A05","time":"2026-10-07T10:26:00+08:00","title":"管理员登录后导出","actors":"admin_01","event_rows":"E20|E21|E22","signal":"登录后同会话导出虚构排班"},{"alert_id":"A06","time":"2026-10-07T10:31:00+08:00","title":"MFA拒绝并出现采集提示","actors":"member_05|collector_01","event_rows":"E23|E24","signal":"登录失败后采集心跳异常"}]}</script>
+<script id="security-app">
+'use strict';
+function selectSecurityEvents(events, alerts, alertId, kind, query) {
+  const alert = alerts.find(item => item.alert_id === alertId);
+  const allowed = alert ? new Set(alert.event_rows.split('|')) : null;
+  const term = String(query || '').trim().toLowerCase();
+  return events.filter(event => (!allowed || allowed.has(event.row_id)) && (!kind || event.event_type === kind) && (!term || Object.values(event).some(value => String(value).toLowerCase().includes(term))));
+}
+if (typeof document !== 'undefined') {
+  const data = JSON.parse(document.getElementById('security-data').textContent);
+  const alertFilter = document.getElementById('alert-filter');
+  const kindFilter = document.getElementById('kind-filter');
+  const query = document.getElementById('query');
+  const rows = document.getElementById('event-rows');
+  const count = document.getElementById('count');
+  const empty = document.getElementById('empty');
+  for (const alert of data.alerts) {
+    const option = document.createElement('option');
+    option.value = alert.alert_id;
+    option.textContent = alert.alert_id + ' · ' + alert.title;
+    alertFilter.appendChild(option);
+    const card = document.createElement('article');
+    card.className = 'card';
+    const title = document.createElement('h3');
+    title.textContent = alert.alert_id + ' · ' + alert.title;
+    const signal = document.createElement('p');
+    signal.textContent = alert.time.slice(11, 16) + ' / ' + alert.signal;
+    const evidence = document.createElement('p');
+    evidence.textContent = '证据：' + alert.event_rows.replaceAll('|', '、');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = '查看相关事件';
+    button.addEventListener('click', () => {
+      alertFilter.value = alert.alert_id;
+      kindFilter.value = '';
+      query.value = '';
+      render();
+      document.getElementById('events').scrollIntoView({block:'start'});
+      alertFilter.focus({preventScroll:true});
+    });
+    card.append(title, signal, evidence, button);
+    document.getElementById('alerts').appendChild(card);
+  }
+  function render() {
+    const selected = selectSecurityEvents(data.events, data.alerts, alertFilter.value, kindFilter.value, query.value);
+    rows.replaceChildren();
+    for (const event of selected) {
+      const tr = document.createElement('tr');
+      const pairs = [[event.row_id,event.time.slice(11, 16)],[event.actor_id,event.role],[event.source_ip,event.device_id],[event.event_type,event.resource],[event.result,event.reason],[event.mfa,''],[event.session_id,'']];
+      for (const [primary, secondary] of pairs) {
+        const td = document.createElement('td');
+        const value = document.createElement('code');
+        value.textContent = primary;
+        td.appendChild(value);
+        if (secondary) {
+          const detail = document.createElement('small');
+          detail.textContent = secondary;
+          td.appendChild(detail);
+        }
+        tr.appendChild(td);
+      }
+      rows.appendChild(tr);
+    }
+    count.textContent = '显示 ' + selected.length + ' / ' + data.events.length + ' 条事件 · 当前筛选不会更改原始材料';
+    empty.hidden = selected.length !== 0;
+  }
+  alertFilter.addEventListener('change', render);
+  kindFilter.addEventListener('change', render);
+  query.addEventListener('input', render);
+  document.getElementById('reset').addEventListener('click', () => {
+    alertFilter.value = '';
+    kindFilter.value = '';
+    query.value = '';
+    render();
+    query.focus();
+  });
+  render();
+}
+</script>
+</body>
+</html>

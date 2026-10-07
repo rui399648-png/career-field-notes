@@ -1,0 +1,13 @@
+id,name,email,workshop,status
+R009,陈晨,chen@example.com,mobile-photo,active
+R002,林青,lin@example.com,mobile-photo,active
+ r009 ,陈晨, CHEN@example.com ,mobile-photo,active
+R001,周禾,zhou@example.com,mobile-photo,active
+R007,许言,xu@example.com,python-tools,cancelled
+R004,江雨,jiang@example.com,python-tools,active
+R003,杨帆,yang.example.com,python-tools,active
+R010,   ,space@example.com,python-tools,active
+R012,陆明,lu@example.com,video-edit,active
+R006,赵月,zhao@example.com,video-edit,active
+R011,孙星,sun@example.com,video-edit,active
+R005,许言, XU@example.com ,python-tools,active

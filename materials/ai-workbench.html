@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 应用开发 · 离线知识问答原型</title>
+  <style>
+    :root{color-scheme:light;--ink:#263b39;--muted:#566b64;--line:#c9d5cc;--pale:#edf1e8;--accent:#276453}
+    *{box-sizing:border-box}body{margin:0;background:#f6f5ee;color:var(--ink);font:16px/1.75 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1080px;margin:auto;padding:32px 24px 64px}h1{font-size:clamp(28px,5vw,42px);line-height:1.35;margin:0 0 12px}h2{margin:0 0 12px;font-size:23px}h3{font-size:18px;margin:0 0 8px}p{margin:8px 0}a{color:var(--accent)}.eyebrow,.small{font-size:13px;color:var(--muted)}.block{background:white;border:1px solid var(--line);border-radius:12px;padding:22px;margin:22px 0}.notice{background:var(--pale);border-left:4px solid var(--accent);padding:14px 18px}.warning{background:#fff0d8;border-color:#af661d;color:#6d4317}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.case{border-top:1px solid var(--line);padding:16px 0}.case:first-child{border-top:0}label{display:block;margin:12px 0 6px;font-size:15px;font-weight:600}textarea,select,input{font:inherit;color:var(--ink)}textarea{width:100%;min-height:75px;resize:vertical;padding:10px 12px;border:1px solid #96ac9f;border-radius:7px;background:#fff;line-height:1.55}textarea.code{min-height:235px;font:14px/1.6 Consolas,monospace}textarea.saved{min-height:160px;font:13px/1.6 Consolas,monospace;background:var(--pale)}textarea[readonly]{max-height:340px}button{border:1px solid var(--accent);border-radius:7px;background:var(--accent);color:white;padding:10px 14px;min-height:44px;cursor:pointer;font:inherit}button.outline{background:white;color:var(--accent)}button:focus-visible,a:focus-visible,textarea:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #cc8246;outline-offset:3px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}details{margin:12px 0}summary{cursor:pointer;min-height:38px}.result{padding:18px;background:var(--pale);border-radius:9px;margin:16px 0;overflow-wrap:anywhere}.response{white-space:pre-wrap}.check{display:flex;gap:10px;align-items:flex-start;font-weight:400}.check input{margin-top:6px;width:19px;height:19px;flex-shrink:0}select{min-height:44px;padding:7px;border:1px solid #96ac9f;border-radius:6px;background:white}#status{min-height:28px;white-space:pre-wrap}code{overflow-wrap:anywhere}.back{display:inline-block;margin-top:12px}@media(max-width:700px){main{padding:24px 16px 48px}.grid{grid-template-columns:1fr}.block{padding:18px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">GROUND / EVALUATE / ITERATE · 全部活动与业务材料均为模拟</p>
+    <h1>离线知识问答原型</h1>
+    <p>你会修改检索规则，实际运行问题，查看来源，再复验同一组样例。这里使用<strong>字面关键词检索与摘录模板，没有调用大模型</strong>；运行结果不能证明任何模型的准确率。</p>
+    <a class="back" href="../index.html#ai">← 返回 AI 应用开发试玩记录</a>
+  </header>
+  <div class="notice">
+    <p>先写预期并运行 V1，保留失败证据；再手改 JSON、运行 V2，复查手机题和一条自写题。这里没有“一键修复”。</p>
+    <p><strong>本页不使用浏览器存储。</strong>V1/V2 只在当前页内存中，刷新或关闭会消失。离开前复制或下载两轮记录，并把配置位置与结论写回试玩盒。</p>
+  </div>
+  <section class="block">
+    <h2>01 · 先定每题的检查标准</h2>
+    <p class="small">五题可改文字，预期应跟着更新。只用当前卡中的事实；不知道的事项应说明缺资料。先写预期，再运行。新增题也需写预期。</p>
+    <div id="cases"></div>
+    <div class="case">
+      <label for="question-E06">E06 · 自写一个新的设备问法（V2 必做，V1 可留空）</label>
+      <textarea id="question-E06" maxlength="1000" placeholder="写你自己的说法，不复制前五题。"></textarea>
+      <label for="expected-E06">新增题在运行前的预期事实、来源或应拒答条件</label>
+      <textarea id="expected-E06" maxlength="3000" placeholder="想核对的事实、卡ID/版本、怎样判通过或失败。"></textarea>
+    </div>
+  </section>
+  <section class="block">
+    <h2>02 · 修改 JSON，运行当前规则</h2>
+    <div class="grid">
+      <div><label for="config">实际生效的规则配置</label><textarea id="config" class="code" spellcheck="false" maxlength="20000"></textarea></div>
+      <div>
+        <p><code>activeOnly</code>：是否只检索 active 卡。</p>
+        <p><code>unknownMode</code>：无命中时使用 <code>guess</code> 或 <code>refuse</code>。</p>
+        <p><code>aliases</code>：把一种说法补成已有关键词；对象中每项是文字 → 文字。它只影响匹配，不增加知识事实。</p>
+        <p><code>includeSource</code>：回答正文是否附卡 ID/版本；trace 始终保留真实来源。</p>
+        <p class="small">算法：对问题做小写转换，追加实际命中的别名目标；每张卡按命中的不同关键词数打分。按配置过滤卡，取最高分，同分取排在前面的卡，只摘录一张卡。没有语义理解，复杂问题需另测。</p>
+      </div>
+    </div>
+    <div class="actions"><button id="run">运行当前规则</button></div>
+    <p id="status" role="status" aria-live="polite"></p>
+    <div id="results"></div>
+    <details><summary>保留 V1 后查看：组织者的反馈</summary><p>旧通知已经归档，只能按当前材料答。“专业摄影器材”是在问设备；停车没有确认资料，请告知缺资料并建议确认。修改后也要检查“只有手机”这条原来能回答的问题。</p><p>修改真实规则或别名，不按题号添加答案。保留至少两条失败的输出与 trace，说明规则变化对应哪条问题。</p></details>
+  </section>
+  <section class="block">
+    <h2>03 · 保留两轮配置、实际结果与判定</h2>
+    <p>运行后逐题判定，再点击保留。修改了配置、题目或预期时，要重新运行才能保留；不能把旧输出归到新配置名下。覆盖同轮记录前会询问确认。</p>
+    <div class="actions"><button id="keep-v1">保留为 V1</button><button id="keep-v2">保留为 V2</button><button id="copy-all" class="outline">复制两轮记录</button><button id="download" class="outline">下载两轮 JSON</button></div>
+    <div class="grid">
+      <div><label for="saved-v1">已保留的 V1（可选择复制）</label><textarea id="saved-v1" class="saved" readonly placeholder="先运行并保留 V1。"></textarea><button class="outline" id="copy-v1">复制 V1</button></div>
+      <div><label for="saved-v2">已保留的 V2（可选择复制）</label><textarea id="saved-v2" class="saved" readonly placeholder="手改规则，复验并保留 V2。"></textarea><button class="outline" id="copy-v2">复制 V2</button></div>
+    </div>
+    <details><summary>下载或自动复制未响应时，选择这里的完整记录</summary><textarea id="saved-all" class="saved" readonly aria-label="可复制的两轮完整记录"></textarea></details>
+  </section>
+  <section class="block">
+    <h2>04 · 检索实际使用的知识卡</h2>
+    <p>知识版本 <code id="knowledge-version"></code>。以下顺序参与同分取舍；K00 故意放在前面，以暴露旧版本使用问题。它不是本次活动事实。</p>
+    <div id="knowledge"></div>
+    <p><a href="ai-knowledge.md">可读知识文件</a> · <a href="ai-workflow.md">45 分钟工作流</a> · <a href="ai-reference.md">独立尝试后的参考</a></p>
+  </section>
+</main>
+<script src="ai-core.js"></script>
+<script>
+'use strict';
+const app = CareerAI;
+const element = id => document.getElementById(id);
+const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+let currentRun = null;
+const rounds = { V1: null, V2: null };
+element('config').value = JSON.stringify(app.INITIAL_CONFIG, null, 2);
+element('cases').innerHTML = app.CASES.map(item => `<div class="case"><label for="question-${item.id}">${item.id} · 问题</label><textarea id="question-${item.id}" maxlength="1000">${escapeText(item.question)}</textarea><label for="expected-${item.id}">运行前的预期与判定标准</label><textarea id="expected-${item.id}" maxlength="3000">${escapeText(item.expected)}</textarea></div>`).join('');
+element('knowledge-version').textContent = app.KNOWLEDGE_VERSION;
+element('knowledge').innerHTML = app.KNOWLEDGE.map(card => `<details><summary>${escapeText(card.id + '/' + card.version + ' · ' + card.status + ' · ' + card.title)}</summary><p>${escapeText(card.facts.join(' '))}</p><p class="small">关键词：${escapeText(card.keywords.join('、'))}</p></details>`).join('');
+
+function message(text, failed = false) {
+  element('status').textContent = text;
+  element('status').className = failed ? 'notice warning' : 'notice';
+}
+function readInputs() {
+  const config = app.parseConfig(element('config').value);
+  const cases = app.CASES.map(item => ({ id: item.id, question: element('question-' + item.id).value.trim(), expected: element('expected-' + item.id).value.trim() }));
+  const question = element('question-E06').value.trim();
+  if (question) cases.push({ id: 'E06', question, expected: element('expected-E06').value.trim() });
+  for (const item of cases) if (!item.question || !item.expected) throw Error(item.id + '的问题和预期都须填写。');
+  return { config, cases };
+}
+function renderResults() {
+  element('results').innerHTML = currentRun.results.map((result, index) => {
+    const item = currentRun.cases[index];
+    const sourceText = result.sources.length ? result.sources.map(source => `${source.id}/${source.version} · ${source.status}`).join('、') : '无来源';
+    return `<article class="result"><h3>${escapeText(item.id)} · 实际输出</h3><p>${escapeText(item.question)}</p><p class="response">${escapeText(result.response)}</p><p class="small">分支：${escapeText(result.decision)} · 来源：${escapeText(sourceText)}</p><p class="small">预期：${escapeText(item.expected)}</p><details><summary>展开本题实际 trace</summary><textarea class="saved" readonly aria-label="${escapeText(item.id)} 检索 trace">${escapeText(JSON.stringify(result.trace, null, 2))}</textarea></details><label class="check"><input id="source-${index}" type="checkbox">来源与版本符合预期（拒答时检查没有虚构来源）</label><label class="check"><input id="supported-${index}" type="checkbox">答复有材料支持，或正确说明未知</label><label class="check"><input id="coverage-${index}" type="checkbox">覆盖预期，或按要求拒答具体事实</label><label for="verdict-${index}">本人判定</label><select id="verdict-${index}"><option value="未复核">未复核</option><option value="通过">通过</option><option value="失败">失败</option></select><label for="reason-${index}">理由或未覆盖问题（至少两条失败写清原因）</label><textarea id="reason-${index}" maxlength="3000" placeholder="引用实际卡ID、匹配词、分支或回答片段。"></textarea></article>`;
+  }).join('');
+}
+function runCurrent() {
+  currentRun = null;
+  element('results').innerHTML = '';
+  try {
+    const inputs = readInputs();
+    currentRun = { ...inputs, results: app.runBatch(inputs.cases.map(item => item.question), inputs.config) };
+    renderResults();
+    message(`已按当前JSON实际运行${currentRun.results.length}题。请逐题复核，再保留为V1或V2；本页没有自动评分。`);
+  } catch (error) {
+    message('运行失败：' + error.message + ' 本次没有生成结果，也没有继续使用旧规则；已保留的V1/V2不变。', true);
+  }
+}
+function refreshSaved() {
+  for (const label of ['V1', 'V2']) element('saved-' + label.toLowerCase()).value = rounds[label] ? JSON.stringify(rounds[label], null, 2) : '';
+  element('saved-all').value = JSON.stringify({ prototype: '离线规则检索与摘录；未调用LLM', knowledgeVersion: app.KNOWLEDGE_VERSION, rounds }, null, 2);
+}
+function keepRound(label) {
+  try {
+    if (!currentRun) throw Error('请先成功运行当前规则。');
+    const inputs = readInputs();
+    if (JSON.stringify(inputs) !== JSON.stringify({ config: currentRun.config, cases: currentRun.cases })) throw Error('规则、题目或预期已改变，请重新运行后再保留。');
+    if (label === 'V2' && !currentRun.cases.some(item => item.id === 'E06')) throw Error('V2还需运行一条自写题，并先写预期。');
+    if (rounds[label] && !window.confirm(label + '已有记录。确认用本次运行替换它？请先复制原记录。')) return;
+    const cases = currentRun.cases.map((item, index) => ({ ...item, actual: currentRun.results[index],
+      source_current: element('source-' + index).checked, answer_supported: element('supported-' + index).checked,
+      coverage_or_refusal: element('coverage-' + index).checked, pass_fail: element('verdict-' + index).value,
+      reason: element('reason-' + index).value.trim() }));
+    rounds[label] = { round: label, prototype: '离线规则检索与摘录；未调用LLM',
+      knowledgeVersion: app.KNOWLEDGE_VERSION, knowledgeCards: app.KNOWLEDGE.map(card => ({ id: card.id, version: card.version, status: card.status })),
+      config: JSON.parse(JSON.stringify(currentRun.config)), cases: JSON.parse(JSON.stringify(cases)) };
+    refreshSaved();
+    message(`已在本页内存保留${label}配置、逐题结果与本人判定。离开前复制或下载。`);
+  } catch (error) { message('无法保留：' + error.message, true); }
+}
+async function copySaved(id) {
+  const target = element(id);
+  if (!target.value || (id === 'saved-all' && !rounds.V1 && !rounds.V2)) { message('请先保留至少一轮运行。', true); return; }
+  try {
+    if (!navigator.clipboard) throw Error('复制接口不可用');
+    await navigator.clipboard.writeText(target.value);
+    message('已复制记录，请粘贴到文件或试玩笔记。');
+  } catch (error) {
+    target.closest('details')?.setAttribute('open', '');
+    target.focus(); target.select();
+    message('自动复制不可用，已选中记录；请按Ctrl+C或使用系统复制，再粘贴保存。');
+  }
+}
+element('run').addEventListener('click', runCurrent);
+element('keep-v1').addEventListener('click', () => keepRound('V1'));
+element('keep-v2').addEventListener('click', () => keepRound('V2'));
+element('copy-v1').addEventListener('click', () => copySaved('saved-v1'));
+element('copy-v2').addEventListener('click', () => copySaved('saved-v2'));
+element('copy-all').addEventListener('click', () => copySaved('saved-all'));
+element('download').addEventListener('click', () => {
+  if (!rounds.V1 && !rounds.V2) { message('请先保留至少一轮运行。', true); return; }
+  const url = URL.createObjectURL(new Blob([element('saved-all').value], { type: 'application/json;charset=utf-8' }));
+  const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'AI离线试玩-V1-V2.json';
+  document.body.appendChild(anchor); anchor.click(); anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  message('已生成下载；请检查下载位置，未响应时可展开完整记录复制。');
+});
+refreshSaved();
+</script>
+</body>
+</html>

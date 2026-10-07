@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数据分析 · 原始事件日志</title>
+<style>
+:root{color-scheme:light;--ink:#183026;--paper:#faf8f0;--line:#ccd4c8}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,"Microsoft YaHei",sans-serif;line-height:1.6}main{max-width:1120px;margin:auto;padding:28px 20px 40px}h1{font-size:clamp(1.6rem,5vw,2.4rem);margin:.2em 0}.eyebrow{font-size:.75rem;letter-spacing:.12em;font-weight:700}p{max-width:80ch}.links{display:flex;gap:16px;flex-wrap:wrap}a{color:#185f48;text-underline-offset:3px}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}table{border-collapse:collapse;width:100%;font-size:.88rem}caption{text-align:left;padding:14px;font-weight:600}th,td{text-align:left;vertical-align:top;padding:8px 10px;border-top:1px solid var(--line)}th{background:#e9eee4;font-size:.82rem}td{font-family:ui-monospace,Consolas,monospace;white-space:pre}td:empty::after{content:"（空值）";font-family:system-ui,sans-serif;color:#6c6a54}tr:nth-child(even){background:#f4f6f0}.note{font-size:.9rem;color:#57665b}code{font-family:ui-monospace,Consolas,monospace}ul{padding-left:1.3em}@media print{main{padding:0}.table-wrap{overflow:visible;border:0}table{font-size:8pt}th,td{padding:4px}a{color:inherit}}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow">SYNTHETIC RAW DATA / CHECK BEFORE COUNTING</p>
+<h1>先看记录，再数人数。</h1>
+<p>以下是29行虚构原始事件，与 CSV 内容及顺序一致；它们尚未清洗或按人汇总。用行号引用发现，保留自己的处理和计算记录。空白 ID 显示“（空值）”；ID 中的原始空格保留。</p>
+<p class="links"><a href="data-events.csv">原始 CSV</a><a href="data-workflow.md">工作流与口径</a></p>
+<ul>
+<li>来源 A 为信息群，B 为分享卡；分母都是进入同一活动页的可识别访客。</li>
+<li>visit 为访问，click 为点击报名入口，submit_success 为表单保存成功；is_test=1 为测试记录。</li>
+<li>窗口：模拟上海时间 2026-10-01 00:00（含）至 2026-10-08 00:00（不含）。ID 去两端空格、转小写；相同 event_id 保留第一条。</li>
+</ul>
+<div class="table-wrap" tabindex="0" role="region" aria-label="原始事件表格，可横向滚动">
+<table>
+<caption>data-events.csv · 未处理的原始日志</caption>
+<thead><tr><th scope="col">row_id</th><th scope="col">event_id</th><th scope="col">user_id</th><th scope="col">channel</th><th scope="col">event</th><th scope="col">occurred_at</th><th scope="col">is_test</th></tr></thead>
+<tbody>
+<tr><td>R01</td><td>V001</td><td>a01</td><td>A</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R02</td><td>V002</td><td>a02</td><td>A</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R03</td><td>V003</td><td>a03</td><td>A</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R04</td><td>V004</td><td>a04</td><td>A</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R05</td><td>V005</td><td>a05</td><td>A</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R06</td><td>V006</td><td>a06</td><td>A</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R07</td><td>V007</td><td>a07</td><td>A</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R08</td><td>V008</td><td>a08</td><td>A</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R09</td><td>C001</td><td>a01</td><td>A</td><td>click</td><td>2026-10-03T09:10:00+08:00</td><td>0</td></tr>
+<tr><td>R10</td><td>C002</td><td>a02</td><td>A</td><td>click</td><td>2026-10-03T09:10:00+08:00</td><td>0</td></tr>
+<tr><td>R11</td><td>C003</td><td>a03</td><td>A</td><td>click</td><td>2026-10-03T09:10:00+08:00</td><td>0</td></tr>
+<tr><td>R12</td><td>C004</td><td>a04</td><td>A</td><td>click</td><td>2026-10-03T09:10:00+08:00</td><td>0</td></tr>
+<tr><td>R13</td><td>S001</td><td>a01</td><td>A</td><td>submit_success</td><td>2026-10-03T09:20:00+08:00</td><td>0</td></tr>
+<tr><td>R14</td><td>S002</td><td>a02</td><td>A</td><td>submit_success</td><td>2026-10-03T09:20:00+08:00</td><td>0</td></tr>
+<tr><td>R15</td><td>V009</td><td>b01</td><td>B</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R16</td><td>V010</td><td>b02</td><td>B</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R17</td><td>V011</td><td>b03</td><td>B</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R18</td><td>V012</td><td>b04</td><td>B</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R19</td><td>V013</td><td>b05</td><td>B</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R20</td><td>V014</td><td>b06</td><td>B</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R21</td><td>C005</td><td>b01</td><td>B</td><td>click</td><td>2026-10-03T09:10:00+08:00</td><td>0</td></tr>
+<tr><td>R22</td><td>C006</td><td>b02</td><td>B</td><td>click</td><td>2026-10-03T09:10:00+08:00</td><td>0</td></tr>
+<tr><td>R23</td><td>C007</td><td>b03</td><td>B</td><td>click</td><td>2026-10-03T09:10:00+08:00</td><td>0</td></tr>
+<tr><td>R24</td><td>S003</td><td> B01 </td><td>B</td><td>submit_success</td><td>2026-10-03T09:20:00+08:00</td><td>0</td></tr>
+<tr><td>R25</td><td>S004</td><td>b02</td><td>B</td><td>submit_success</td><td>2026-10-03T09:20:00+08:00</td><td>0</td></tr>
+<tr><td>R26</td><td>C005</td><td>b01</td><td>B</td><td>click</td><td>2026-10-03T09:10:00+08:00</td><td>0</td></tr>
+<tr><td>R27</td><td>V015</td><td></td><td>A</td><td>visit</td><td>2026-10-03T09:00:00+08:00</td><td>0</td></tr>
+<tr><td>R28</td><td>S005</td><td>t01</td><td>A</td><td>submit_success</td><td>2026-10-03T09:20:00+08:00</td><td>1</td></tr>
+<tr><td>R29</td><td>V016</td><td>b07</td><td>B</td><td>visit</td><td>2026-09-30T09:00:00+08:00</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<p class="note">这里不计算结果，也不自动标记问题。先保存 V1，再回任务页打开相关方反馈。手机窄屏可横向滚动表格；纸笔或文本编辑器均可完成主轮。</p>
+</main>
+</body>
+</html>

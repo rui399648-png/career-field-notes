@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>手机摄影报名演示</title>
+  <style>
+    :root { color-scheme: light; --ink: #18342e; --muted: #516b63; --accent: #146b56; --line: #d5e2da; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #f4f6ee; font: 16px/1.65 system-ui, "Microsoft YaHei", sans-serif; }
+    main { width: min(940px, calc(100% - 32px)); margin: 36px auto 56px; }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 13px; font-weight: 750; letter-spacing: .1em; }
+    h1 { margin: 0; font-size: clamp(28px, 5vw, 40px); line-height: 1.25; }
+    h2 { margin: 0 0 14px; font-size: 21px; }
+    h3 { margin: 0 0 6px; font-size: 16px; }
+    p { margin: 10px 0; }
+    .muted { color: var(--muted); }
+    .facts { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 20px 0; list-style: none; }
+    .facts li { background: #e5eee2; padding: 5px 12px; border-radius: 6px; font-size: 14px; }
+    .notice { margin: 16px 0 24px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 10px; background: #eaf3ec; }
+    .notice.warning { border-color: #b16b1e; color: #643f10; background: #fff0ca; font-weight: 650; }
+    .grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 20px; align-items: start; }
+    .card { padding: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+    .rules { padding-left: 22px; margin: 0 0 24px; font-size: 14px; }
+    .rules li + li { margin-top: 8px; }
+    label { display: block; margin: 18px 0 6px; font-weight: 650; }
+    input { display: block; width: 100%; padding: 11px 12px; border: 1px solid #829b90; border-radius: 7px; font: inherit; background: #fff; color: var(--ink); }
+    input:focus { outline: 3px solid #b9dbca; outline-offset: 1px; }
+    button { cursor: pointer; border: 1px solid var(--accent); border-radius: 7px; padding: 10px 16px; font: inherit; font-weight: 650; color: #fff; background: var(--accent); }
+    button:hover { background: #0b513f; }
+    button:focus-visible { outline: 3px solid #e6b954; outline-offset: 3px; }
+    .submit { width: 100%; margin-top: 22px; }
+    .secondary { background: #fff; color: var(--accent); }
+    .secondary:hover { background: #eef5ee; }
+    .small { padding: 6px 12px; font-size: 14px; flex-shrink: 0; }
+    .count { margin: 0 0 16px; padding: 10px 12px; border-radius: 7px; background: #f0f4ed; font-weight: 650; }
+    .result { margin: 22px 0 0; padding: 13px 15px; border-radius: 8px; background: #f0f4ed; }
+    .result[data-kind="error"] { background: #fff0e8; color: #853c1b; }
+    .result[data-kind="success"] { background: #e8f4eb; color: #215e38; }
+    #result-text { margin: 0; overflow-wrap: anywhere; }
+    #registrations { padding: 0; margin: 0 0 22px; list-style: none; }
+    #registrations li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .person { min-width: 0; }
+    .person strong, .person span { display: block; overflow-wrap: anywhere; white-space: pre-wrap; }
+    .person span { color: var(--muted); font-size: 14px; }
+    #empty-message { margin: 18px 0 24px; color: var(--muted); }
+    .practice { margin-top: 22px; }
+    .template { padding: 12px 14px; background: #f0f4ed; border-radius: 8px; font-size: 14px; }
+    footer { margin-top: 18px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 680px) { main { margin-top: 24px; } .grid { grid-template-columns: 1fr; } .card { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">职业试玩盒 · 软件测试 · 45 分钟</p>
+      <h1>手机摄影报名演示</h1>
+      <p class="muted">虚构的「校园技能交换日」活动。免费、零基础，带手机即可参加。</p>
+      <ul class="facts" aria-label="活动设定">
+        <li>周六 14:00–15:00</li>
+        <li>B203</li>
+        <li>活动设定：20 名</li>
+        <li>不提供证书或学分</li>
+      </ul>
+      <p><strong>本页仅用于测试练习，演示容量缩为 2 人。</strong>报名数据是虚构数据，不发布、不提交给活动组织者。请使用虚构姓名和邮箱。</p>
+    </header>
+
+    <div id="storage-notice" class="notice" role="status" aria-live="polite">正在检查本机保存是否可用……</div>
+
+    <div class="grid">
+      <section class="card" aria-labelledby="form-title">
+        <h2 id="form-title">演示报名</h2>
+        <ul class="rules">
+          <li>姓名去掉两端空格后，应为 2–20 个字符，不能为空。</li>
+          <li>邮箱去掉两端空格后，应恰好含一个 @；@ 两侧均非空，内部不能含空白字符。</li>
+          <li>同一邮箱只能报名一次：比较时应忽略大小写和两端空格。</li>
+          <li>最多 2 人报名；取消报名后应恢复一个名额。无效或重复报名不应改变名单。</li>
+        </ul>
+        <form id="signup-form" novalidate autocomplete="off">
+          <label for="name">虚构姓名</label>
+          <input id="name" name="demo-name" type="text" placeholder="例如：测试甲" autocomplete="off" spellcheck="false" aria-describedby="form-hint">
+          <label for="email">虚构邮箱</label>
+          <input id="email" name="demo-email" type="text" inputmode="email" placeholder="例如：tester@example.test" autocomplete="off" spellcheck="false" aria-describedby="form-hint">
+          <p id="form-hint" class="muted" style="font-size:14px">使用上方规则判断结果；无需真实个人信息。</p>
+          <button class="submit" type="submit">提交演示报名</button>
+        </form>
+        <div id="result" class="result" data-kind="neutral" role="status" aria-live="polite" aria-atomic="true">
+          <h3>操作结果</h3>
+          <p id="result-text">填写虚构信息后提交，结果将显示在这里。</p>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="list-title">
+        <h2 id="list-title">演示报名名单</h2>
+        <p id="count" class="count" aria-live="polite"></p>
+        <p id="empty-message">当前没有报名记录。</p>
+        <ul id="registrations" aria-label="已报名人员"></ul>
+        <button id="clear-demo" class="secondary" type="button">清空演示数据</button>
+        <p class="muted" style="font-size:14px">清空会移除当前演示名单，并清空输入框，方便从相同起点再次测试。</p>
+      </section>
+    </div>
+
+    <section class="card practice" aria-labelledby="practice-title">
+      <h2 id="practice-title">你的 45 分钟任务</h2>
+      <p>先阅读规则，再设计并执行 <strong>4 个重点测试用例</strong>，覆盖正常报名、全空格姓名、重复邮箱与容量边界。每个用例记录输入、操作、预期结果与实际结果。</p>
+      <p>从发现的问题中选择一个，写 <strong>1 份 bug 报告</strong>，从空名单再次复现。收到反馈后到 signup-fixed.html 复测同一问题，再做取消、刷新等 2 条关联回归。不要改动代码。</p>
+      <div class="template">用例模板：编号｜初始状态｜输入与步骤｜预期｜实际｜通过 / 未通过<br>bug 模板：标题｜环境｜前置条件｜复现步骤｜预期｜实际｜影响</div>
+      <p class="muted" style="font-size:14px">按 testing-workflow.md 完成：5 分钟简报、15 分钟初测与缺陷初稿、15 分钟反馈复核、10 分钟交接回顾。先保存发现，再按需查看 testing-reference.md；缺陷复现只是初测阶段目标。</p>
+    </section>
+    <footer>离线单文件演示 · 当前浏览器允许本机保存时，刷新可保留演示名单。请留意顶部的保存状态。</footer>
+  </main>
+
+  <script>
+    'use strict';
+    const CAPACITY = 2;
+    const STORAGE_KEY = 'career-kit-signup-demo-v1';
+    const form = document.getElementById('signup-form');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const list = document.getElementById('registrations');
+    const emptyMessage = document.getElementById('empty-message');
+    const count = document.getElementById('count');
+    const result = document.getElementById('result');
+    const resultText = document.getElementById('result-text');
+    const storageNotice = document.getElementById('storage-notice');
+    let registrations = [];
+    let storageAvailable = false;
+
+    function warnStorage(detail) {
+      storageAvailable = false;
+      storageNotice.classList.add('warning');
+      storageNotice.textContent = detail + ' 当前修改仅保留在本页面，刷新后可能丢失；请勿将本次操作视为已保存。';
+    }
+
+    function initializeStorage() {
+      try {
+        const probeKey = STORAGE_KEY + '-probe';
+        window.localStorage.setItem(probeKey, 'ok');
+        window.localStorage.removeItem(probeKey);
+        const saved = window.localStorage.getItem(STORAGE_KEY);
+        if (saved !== null) {
+          const parsed = JSON.parse(saved);
+          const ids = new Set();
+          const valid = Array.isArray(parsed) && parsed.every(function (item) {
+            if (!item || typeof item.id !== 'string' || !item.id || ids.has(item.id) || typeof item.name !== 'string' || typeof item.email !== 'string') return false;
+            ids.add(item.id);
+            return true;
+          });
+          if (!valid) throw new Error('invalid stored records');
+          registrations = parsed;
+        }
+        storageAvailable = true;
+        storageNotice.textContent = '本机保存可用：刷新后将保留演示名单。数据只保存在当前浏览器中，可使用「清空演示数据」复位。';
+      } catch (error) {
+        warnStorage('无法使用本机保存：浏览器限制、存储故障或已有演示数据格式异常。');
+      }
+    }
+
+    function persist() {
+      if (!storageAvailable) return false;
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(registrations));
+        return true;
+      } catch (error) {
+        warnStorage('本机保存失败：存储可能被禁用或空间不足。');
+        return false;
+      }
+    }
+
+    function announce(message, kind, saved) {
+      result.dataset.kind = kind;
+      resultText.textContent = message + (saved === false ? ' 本次修改未保存，请查看顶部提示。' : '');
+    }
+
+    function render() {
+      count.textContent = '已报名 ' + registrations.length + ' / ' + CAPACITY + ' 人 · 剩余 ' + Math.max(0, CAPACITY - registrations.length) + ' 个名额（演示）';
+      emptyMessage.hidden = registrations.length !== 0;
+      list.replaceChildren();
+      registrations.forEach(function (person) {
+        const row = document.createElement('li');
+        const info = document.createElement('div');
+        info.className = 'person';
+        const personName = document.createElement('strong');
+        personName.textContent = person.name;
+        const personEmail = document.createElement('span');
+        personEmail.textContent = person.email;
+        info.append(personName, personEmail);
+        const cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.className = 'secondary small';
+        cancel.textContent = '取消';
+        cancel.setAttribute('aria-label', '取消 ' + person.name + '（' + person.email + '）的演示报名');
+        cancel.addEventListener('click', function () {
+          const target = registrations.find(function (item) { return item.id === person.id; });
+          if (!target) return;
+          registrations = registrations.filter(function (item) { return item.id !== person.id; });
+          const saved = persist();
+          render();
+          announce('已取消该条报名，名额已更新。', 'success', saved);
+        });
+        row.append(info, cancel);
+        list.append(row);
+      });
+    }
+
+    function createId() {
+      let candidate;
+      do {
+        candidate = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+      } while (registrations.some(function (item) { return item.id === candidate; }));
+      return candidate;
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const rawName = nameInput.value;
+      const cleanName = rawName.trim();
+      const nameLength = Array.from(cleanName).length;
+      const acceptableName = (nameLength >= 2 && nameLength <= 20) || /^ {2,20}$/.test(rawName);
+      if (!acceptableName) {
+        announce('姓名无效：去掉两端空格后须为 2–20 个字符，不能为空。', 'error');
+        return;
+      }
+      const rawEmail = emailInput.value;
+      const cleanEmail = rawEmail.trim();
+      if (!/^[^\s@]+@[^\s@]+$/u.test(cleanEmail)) {
+        announce('邮箱无效：应恰好含一个 @，两侧非空，内部无空白字符。', 'error');
+        return;
+      }
+      if (registrations.some(function (person) { return person.email === rawEmail; })) {
+        announce('该邮箱已报名，重复报名未添加。', 'error');
+        return;
+      }
+      if (registrations.length > CAPACITY) {
+        announce('演示名额已满，本次报名未添加。', 'error');
+        return;
+      }
+      registrations.push({ id: createId(), name: cleanName || rawName, email: rawEmail });
+      const saved = persist();
+      render();
+      announce('演示报名成功，名单已新增 1 人。', 'success', saved);
+      form.reset();
+    });
+
+    document.getElementById('clear-demo').addEventListener('click', function () {
+      registrations = [];
+      const saved = persist();
+      form.reset();
+      render();
+      announce('演示数据已清空，可从空名单重新测试。', 'success', saved);
+    });
+
+    initializeStorage();
+    render();
+  </script>
+</body>
+</html>

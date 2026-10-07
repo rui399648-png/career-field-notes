@@ -1,0 +1,5 @@
+user_id,status,snapshot_at
+a01,accepted,2026-10-07T18:00:00+08:00
+a02,accepted,2026-10-07T18:00:00+08:00
+b01,cancelled,2026-10-07T18:00:00+08:00
+b02,waitlist,2026-10-07T18:00:00+08:00
