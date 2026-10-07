@@ -1,0 +1,3 @@
+channel,reach_users,click_users,successful_submit_users,cohort_id,observation_window,reach_definition,click_definition,submit_definition,deduplication,attribution,cross_channel_overlap,is_simulated
+公众号,200,30,9,public_account_cohort,模拟发布后24小时,打开文章的独立模拟用户,通过该渠道标记报名入口的独立点击用户,通过该渠道入口点击后成功提交的独立用户,每一步按模拟user_id去重计一次,成功提交归属该渠道标记入口,0两组user_id完全不同,true
+班群,60,18,8,class_group_cohort,模拟发布后24小时,收到消息的独立模拟群成员不等于已阅读,通过该渠道标记报名入口的独立点击用户,通过该渠道入口点击后成功提交的独立用户,每一步按模拟user_id去重计一次,成功提交归属该渠道标记入口,0两组user_id完全不同,true

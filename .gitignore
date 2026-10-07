@@ -1,0 +1,17 @@
+node_modules/
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+.env
+.env.*
+*.pem
+*.key
+coverage/
+test-results/
+playwright-report/
+职业试玩记录*.json
+职业试玩记录*.md
+我的职业试玩记录*.md
+职业试玩受保护原始内容*.txt
+learner-output/
