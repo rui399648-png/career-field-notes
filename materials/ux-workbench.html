@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>UX 原型修改工作台 · 教学模拟</title><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="ux-workbench.css"><script src="ux-core.js" defer></script><script src="ux-workbench.js" defer></script></head>
+<body><main class="material-main">
+<a href="../index.html#ux">← 回到交互／UX 试玩</a><p class="eyebrow">DESIGN / TRY / REVISE</p><h1>把预约原型改得更清楚</h1>
+<p>虚构社区图书交换角。你修改下面的设计参数，再亲自操作预约原型。所有输入与快照仅在此页内存；关闭前复制或下载。只填虚构称呼与代号 DEMO，不填个人联系方式。</p>
+<p><a href="ux-brief.md">背景与模拟体验笔记</a> · <a href="ux-feedback.md">完成 V1 后看反馈</a> · <a href="ux-reference.md">完成 V2 后看参考</a></p>
+<section class="panel"><h2>1. 调整设计</h2><p>初始设计刻意含糊。参数调整会清空本轮操作证据；已保存 V1/V2 保留。这里是受限交互原型，不能代替完整设计工具。</p>
+<div class="form-grid">
+<label><input id="show-rules" type="checkbox"> 在表单前显示预约规则</label>
+<label>主按钮文字<input id="action-label" maxlength="24" value="下一步"></label>
+<label>错误提示<select id="error-style"><option value="generic">统一提示</option><option value="field">关联具体字段</option></select></label>
+<label>成功确认<select id="confirmation"><option value="generic">一句提交成功</option><option value="details">时段、地点与模拟状态</option></select></label>
+</div><p id="design-status" role="status">本轮使用初始设计。</p></section>
+<section class="panel"><h2>2. 亲自操作原型</h2><p>至少提交一次无效表单，再用虚构称呼、时段和 DEMO 走一次成功路径。保留输入便于修正；这些操作只验证当前原型行为。</p>
+<div id="rules" class="notice" hidden>取书地点：一楼交换角。任选一个时段；这是单步模拟预约，提交后会出现状态。只用虚构称呼及演示代号 DEMO，不登记真实信息。</div>
+<form id="prototype" novalidate>
+<label for="nickname">称呼（虚构）</label><input id="nickname" maxlength="20" aria-describedby="nickname-error"><p id="nickname-error" class="small" hidden></p>
+<label for="slot">取书时段</label><select id="slot" aria-describedby="slot-error"><option value="">请选择</option><option value="sat">周六 10:00–10:30</option><option value="sun">周日 15:00–15:30</option></select><p id="slot-error" class="small" hidden></p>
+<label for="code">演示代号</label><input id="code" maxlength="80" aria-describedby="code-error"><p id="code-error" class="small" hidden></p>
+<button id="primary" type="submit">下一步</button></form>
+<p id="outcome" role="alert" tabindex="-1">还未提交。</p><p id="trace-status" role="status">本轮 0 次操作。</p>
+</section>
+<section class="panel"><h2>3. 保存证据，再修改</h2><button id="save-v1" type="button">锁定 V1</button> <button id="save-v2" type="button">锁定 V2</button> <button id="restart" class="outline" type="button">清空本轮操作</button>
+<p id="snapshot-status" role="status">尚未保存快照。一次错误与一次成功后才能锁定；每个版本只能锁定一次。</p>
+<label for="evidence">原型参数与实际操作证据（可选中复制）</label><textarea id="evidence" rows="12" readonly></textarea>
+<button id="copy" type="button">复制证据</button> <button id="download" class="outline" type="button">下载证据 TXT</button><p id="copy-status" role="status"></p>
+<p>保存仅表示操作证据完整，不表示体验达标。比较 V1/V2 的具体提示，写出假设、下一轮需要请真实用户验证的内容与设计交接。</p></section>
+</main></body></html>

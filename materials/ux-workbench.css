@@ -1,0 +1,18 @@
+.material-main{max-width:1100px;margin:auto;padding:28px 24px 56px}
+.material-main h1{font-size:clamp(28px,4vw,42px);line-height:1.25;margin:12px 0 20px}
+.material-main .panel{background:var(--surface,#fffefa);border:1px solid var(--line,#d9ded3);border-radius:14px;padding:24px;margin:24px 0}
+.material-main .panel h2{font-size:23px;margin-top:0}
+.material-main .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.material-main label{display:block;font-weight:600;margin:12px 0 6px}
+.material-main input:not([type=checkbox]),.material-main select,.material-main textarea{display:block;width:100%;max-width:100%;font:inherit;border:1px solid #a8b7a7;border-radius:8px;padding:10px 12px;background:#fff;color:#263b39;min-height:44px}
+.material-main input[type=checkbox]{width:18px;height:18px;vertical-align:middle}
+.material-main #prototype{max-width:650px}
+.material-main #primary{margin-top:16px}
+.material-main textarea{font:13px/1.6 ui-monospace,monospace;min-height:240px;resize:vertical;white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:16px}
+.material-main button{margin:6px 6px 6px 0;min-height:44px}
+.material-main button:disabled{opacity:.55;cursor:default}
+.material-main .notice{background:#edf1e7;padding:16px;border-radius:8px;line-height:1.7}
+.material-main [aria-invalid=true]{border-color:#a23b25}
+.material-main [id$=-error]{color:#943b25}
+.material-main [hidden]{display:none!important}
+@media(max-width:650px){.material-main{padding:20px 16px 40px}.material-main .panel{padding:18px}.material-main .form-grid{grid-template-columns:1fr}.material-main button{max-width:100%}}

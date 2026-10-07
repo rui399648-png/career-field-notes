@@ -1,0 +1,5 @@
+sku,name,list_price,min_price,promo_ceiling,regular_demand,promo_demand,unit_cost,shipping,return_handling,initial_stock,initial_ad_order_cost,initial_return_rate,feedback_stock,feedback_ad_order_cost,feedback_return_rate
+S01,香氛手作包,59,39,49,12,32,28,5,8,45,12,0.05,18,12,0.05
+S02,便携杯,79,49,59,10,26,35,5,10,40,15,0.04,40,25,0.20
+S03,桌面收纳,49,29,39,14,34,20,4,6,55,10,0.05,55,10,0.05
+S04,轻量托特,39,25,29,18,40,16,4,5,65,8,0.03,65,8,0.03

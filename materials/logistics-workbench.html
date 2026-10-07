@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>物流规划 · 离线路线台</title>
+<style>
+:root{--ink:#263b39;--muted:#62716b;--paper:#f5f4ee;--surface:#fffefa;--line:#d9ded3;--accent:#b74c2a}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1100px;margin:auto;padding:32px 24px 60px}h1{font-size:clamp(28px,4vw,42px);line-height:1.3}h2{font-size:23px;margin:0 0 14px}h3{font-size:18px}a{color:var(--accent)}a,input,button,select,textarea,summary{touch-action:manipulation}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #c97547;outline-offset:3px}.tag{font-size:12px;letter-spacing:.15em;color:var(--accent);font-weight:700}.note{color:var(--muted)}section{background:var(--surface);padding:24px;border:1px solid var(--line);border-radius:14px;margin-top:24px}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.controls{display:flex;flex-wrap:wrap;gap:16px;align-items:end}label{display:block;font-size:15px;font-weight:650}label span{display:block}input,select,textarea,button{font:inherit;border-radius:8px;border:1px solid #a8b7a7;padding:10px 12px;background:#fff;color:var(--ink)}input,select{min-height:44px;max-width:100%;width:100%}.controls label{flex:1;min-width:160px}.route{margin-top:16px}.route input{font-family:ui-monospace,monospace}textarea{width:100%;resize:vertical;min-height:100px;font-weight:400}button{background:var(--ink);color:white;cursor:pointer;min-height:44px}.outline{background:transparent;color:var(--ink)}button:disabled{opacity:.5;cursor:default}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.table-scroll{overflow-x:auto;max-width:100%}table{border-collapse:collapse;width:100%;min-width:550px;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:left}th{background:#edf1e7}.delayed{color:var(--accent);font-weight:750}.metrics{display:flex;flex-wrap:wrap;gap:10px 20px;background:#edf1e7;padding:14px;border-radius:8px}.warning{border-left:3px solid var(--accent);padding-left:14px}#status{min-height:28px;font-weight:650;margin-top:14px}#export-text{min-height:280px;font-size:13px;line-height:1.55}details{margin-top:18px}summary{cursor:pointer;min-height:38px}.small{font-size:13px;color:var(--muted)}.vehicle{background:#edf1e7;border-radius:10px;padding:16px}.vehicle h3{margin-top:0}.vehicle label+label{margin-top:12px}@media(max-width:650px){main{padding:22px 16px 42px}section{padding:18px}.two{grid-template-columns:1fr}.controls label{min-width:100%}h2{font-size:21px}.actions button{flex:1}table{min-width:530px}}
+</style>
+<script src="logistics-core.js" defer></script><script src="logistics-workbench.js" defer></script>
+</head>
+<body><main>
+<a href="../index.html#logistics">← 回到物流规划任务与体验记录</a>
+<p class="tag">ROUTE / CHECK / REPLAN</p><h1>六笔配送，两辆车。<br>把路线排出来，再算能否兑现。</h1>
+<p class="note">全部材料为虚构。你手动分车、排列ID，工作台按给定矩阵计算，不自动替你求最优路线。离线无账号，不执行真实调度。每次检查后保留一轮；道路延误后重排再核对。</p>
+<p class="warning">本页成果只留在内存，刷新或关闭会丢失。保留V1/V2后复制或下载结果，再回主页面填写；主页面不会自动取得这里的路线。</p>
+<section><h2>01 · 订单与约束</h2>
+<p>DEPOT是仓库。东线D1→D2→D3，北线D4→D5→D6；下面是给定材料，不能按地图推断现实路况。</p>
+<div class="table-scroll" id="orders"></div>
+<p>两车均09:00出发，各容量5格；每站服务5分钟，10:30前回仓库。每笔订单不可拆分，出发时携带本车全部货物，中途不补货。六笔均须安排一次，不得重复或遗漏。</p>
+<p class="note">时间窗规定“开始服务”的最早与最晚时刻，端点包含。提早到可等待；不能通过少算服务、等待或返仓来达标。</p>
+<details><summary>澄清卡：用什么单位检查？</summary><p>容量按装载格数求和，路程为公里，路段耗时为分钟。到达＝上站离开＋路段耗时；服务开始＝到达与窗口起点的较大者；离开＝服务开始＋服务分钟。到达最晚时刻后才服务算晚到。</p></details>
+<details><summary>查看当前场景完整通行分钟矩阵</summary><p id="matrix-note" class="note"></p><div class="table-scroll" id="matrix"></div><p class="small">公里矩阵保持初始分钟矩阵除以2；反馈只改变D1↔D2通行时间，距离仍5公里。实际运输不会由这条教学关系估算。</p></details>
+</section>
+<section><h2>02 · 排路线并检查</h2>
+<div class="controls">
+<label><span>路况场景</span><select id="scenario"><option value="normal">初始 L1 · 先保存V1</option><option value="delay">反馈 L2 · D1↔D2延误</option></select></label>
+<label><span>出发时间</span><input id="start-time" type="time" value="09:00"></label>
+<label><span>每站服务分钟</span><input id="service-minutes" type="number" min="1" max="30" step="1" value="5"></label>
+</div>
+<p class="small">交付使用既定09:00、5分钟/站、5格/车。可改资源参数做探索，结果会标明偏离任务条件；增加运力或提前出发尚未获模拟负责人批准，不能据此算完成本题。</p>
+<div class="two">
+<div class="vehicle"><h3>车辆 A</h3><label><span>容量（格）</span><input id="capacity-A" type="number" min="1" max="20" step="1" value="5"></label><label class="route"><span>按到访顺序输入配送ID</span><input id="route-A" type="text" placeholder="例如 D1,D3" spellcheck="false" autocomplete="off"></label></div>
+<div class="vehicle"><h3>车辆 B</h3><label><span>容量（格）</span><input id="capacity-B" type="number" min="1" max="20" step="1" value="5"></label><label class="route"><span>按到访顺序输入配送ID</span><input id="route-B" type="text" placeholder="把余下的ID分给B车" spellcheck="false" autocomplete="off"></label></div>
+</div>
+<div class="actions"><button id="run" type="button">计算到达、等待与返回</button><button id="keep-v1" type="button" class="outline" disabled>保留初始 V1</button><button id="keep-v2" type="button" class="outline" disabled>保留反馈后 V2</button></div>
+<p id="status" role="status" aria-live="polite">先给六笔配送各安排一辆车。</p><div id="results"></div>
+<label><span>这一轮的理由、变化与未确认项（随快照保留）</span><textarea id="notes" placeholder="先写初版理由。反馈后改了哪个顺序，改善了什么，仍有什么没有验证？"></textarea></label>
+</section>
+<section><h2>03 · 反馈与复核</h2>
+<details><summary>先保留V1，再读：道路延误反馈</summary><p>D1↔D2临时管制，两个方向通行时间从10变45分钟；其他道路、窗口、运力、出发和服务时间不变。切换L2场景，先重算原路线，看哪里失约，再改顺序。不能通过换回L1或随意加容量完成反馈轮。</p></details>
+<details><summary>提示1：先减少交叉绕行</summary><p>东线和北线的跨线路程比同线相邻站长。先根据装载格数和时间窗分车；每车一趟总格数不超过5，不只看“订单数”。</p></details>
+<details><summary>提示2：延误后比较到访顺序</summary><p>可以避开D1↔D2路段，但绕行后要查每站的最晚服务时刻和最后返仓，不只比较公里数。若没有通过，保留失败证据也可以记录体验。</p></details>
+<p class="note">结果只核对给定六单、容量、时间窗、路段耗时、服务和返仓。未模拟装卸设备、司机休息、交通安全、真实成本、多仓库存或突发路况；不代表企业级全局最优解。</p>
+</section>
+<section><h2>04 · 带走两轮证据</h2><p id="round-status" class="note">尚未保留两轮。</p>
+<div class="actions"><button id="copy" type="button" disabled>复制两轮文本</button><button id="download" type="button" class="outline" disabled>下载两轮 Markdown</button></div>
+<label><span>可选中复制的完整材料、参数和结果快照</span><textarea id="export-text" readonly></textarea></label>
+<p class="small">复制按钮无法使用时直接选中文本复制。已保留快照不会被后续编辑改写；重新保留同轮会替换该轮，请先备份。<a href="logistics-reference.md">尝试修订后查看参考</a> · <a href="logistics-workflow.md">完整工作流</a></p>
+</section>
+</main></body></html>

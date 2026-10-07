@@ -30,7 +30,7 @@ function productSources(folder) {
   });
 }
 
-test('all seven task descriptors expose 45-minute exercises and valid material links', () => {
+test('all ten task descriptors expose 45-minute exercises and valid material links', () => {
   const context = vm.createContext({});
   const index = fs.readFileSync(indexFile, 'utf8');
   const taskScripts = [...index.matchAll(/<script\b[^>]*src="(tasks-[^"]+\.js)"/g)]
@@ -39,7 +39,7 @@ test('all seven task descriptors expose 45-minute exercises and valid material l
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, { filename: file });
   }
   const tasks = vm.runInContext('TASKS', context);
-  assert.deepEqual(Object.keys(tasks), ['test', 'build', 'product', 'content', 'data', 'ai', 'security']);
+  assert.deepEqual(Object.keys(tasks), ['test', 'build', 'product', 'content', 'data', 'ai', 'security','ecommerce','logistics','ux']);
   function checkPaths(item) {
     if (!item || typeof item !== 'object') return;
     if (typeof item.path === 'string') localLink(indexFile, item.path);

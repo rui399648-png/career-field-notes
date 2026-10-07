@@ -9,7 +9,8 @@ const files = fs.readdirSync(__dirname)
   .sort()
   .map(name => path.join(__dirname, name));
 if (!files.length) throw new Error('No test files found.');
-const result = spawnSync(process.execPath, ['--test', ...files], {
+const pathFlags = process.execArgv.filter(arg => ['--preserve-symlinks','--preserve-symlinks-main'].includes(arg));
+const result = spawnSync(process.execPath, [...pathFlags, '--test', ...files], {
   cwd: path.resolve(__dirname, '..'),
   stdio: 'inherit'
 });

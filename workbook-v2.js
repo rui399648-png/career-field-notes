@@ -1,5 +1,7 @@
 'use strict';
 const ids = Object.keys(TASKS);
+document.title = `职业试玩盒 v${APP_INFO.version} · ${ids.length} 个工作样本`;
+document.getElementById('release-info').textContent = `每项约 45 分钟 · v${APP_INFO.version} · 分天做，先挑两项`;
 const labels = {welcome:'开始试玩', ...Object.fromEntries(ids.map(id => [id, TASKS[id].name])), compare:'体验对照', history:'历史记录'};
 const reflectionLabels = {stage:'实际成果阶段', familiar:'开始前熟悉程度', help:'帮助程度', moment:'投入时刻', obstacle:'卡点与继续意愿', repetitive:'重复工作的感受', next:'再给 30 分钟', review:'收到反馈后的修改意愿', energy:'做完状态', again:'再试意愿', setup:'环境准备分钟'};
 const main = document.getElementById('main');
@@ -60,13 +62,13 @@ function sourceLinks(task) {
 }
 function welcome() {
   const roleCards = roleIds => `<div class="grid">${roleIds.map(id => {const task = TASKS[id]; return `<article class="role-card"><span class="num">${String(ids.indexOf(id) + 1).padStart(2, '0')} / ${esc(task.short)}</span><h2>${esc(task.name)}</h2><p>${esc(task.pitch)}</p><p class="small">留下：${esc(task.deliverable)}</p><button data-go="${id}">进入${esc(task.name)} →</button></article>`;}).join('')}</div>`;
-  const additions = ids.filter(id => TASKS[id].newRole);
-  return `<header class="hero"><p class="eyebrow">VERSION 3 / ${ids.length} WORK SAMPLES</p><h1>做一小段工作，<br>看自己想不想继续。</h1><p class="lead">${ids.length} 项约 45 分钟的小任务。先澄清、动手，再接反馈、复核与交接；把完成质量和继续意愿放在一起看。</p></header>
-  ${additions.length ? `<section class="role-group"><h2>新增方向 · 需求增长参考</h2><p class="group-note">结合公开需求报告与真实岗位职责，新增 ${additions.length} 种工作体验。趋势资料不等于本地岗位排名；<a href="新增岗位与依据.md">查看选择依据与范围</a>。</p>${roleCards(additions)}</section>` : ''}
-  <section class="role-group"><h2>原有方向 · 继续深化</h2>${roleCards(ids.filter(id => !TASKS[id].newRole))}</section>
-  <section class="banner"><h2>从同一个模拟活动，试不同工作方式</h2><p>校园技能交换日的活动、人物、反馈和业务数据全部虚构。安全分析另设虚构后台日志，范围见题内材料。</p><div class="facts"><span>手机摄影入门工作坊</span><span>免费 · 零基础 · 手机即可</span><span>活动日周六 14:00–15:00</span><span>教学楼 B203 · 20 名</span><span>不提供学分或证书</span></div></section>
-  <section class="block"><h2>把体验做小，把证据留下</h2><ol><li>每次选一项，分天做；选最想了解的两项开始即可。第二轮换场景或倒序，观察题目与疲劳的影响。</li><li>45 分钟含最后 5 分钟体验记录。模板可以只写要点或文件位置；没有做完就写真实进度。可选加做 20 分钟另记，不占核心计时。</li><li>先独立试 10 分钟，再逐级看提示、反馈与参考。需要帮助时记录谁解释或代写了哪一部分。</li><li>计时按方向保存；切换页面会暂停，刷新保留剩余时间。计时只辅助控制范围，不评价能力。</li><li>本地填写不会自动发送给我。导出记录后可带回聊天；旧版答案在历史记录中保留，不会套入改版任务。</li></ol><p class="noscore">这里不计算职业适合度。一次模拟只能提供探索线索；真正的工作还包括团队协作、交付压力、反复修改和更大规模的问题。</p><div class="actions"><button data-go="data">先试新增方向：数据分析</button><a class="file-link" href="试玩手册.md">文字版手册</a><a class="file-link" href="审查与改进.md">本次审查与改进</a></div></section>
-  <section class="block sources"><h3>真实岗位怎样变成小练习？</h3><p>参考国内外雇主公开岗位与官方工作流程，提取可体验的动作，再裁剪到本轮范围。地区、资历和岗位侧重不同；这些样本不代表统一入门门槛或应聘结果。</p>${ids.map(id => `<details class="hint"><summary>${esc(TASKS[id].name)}：职责与来源</summary><p>${esc(TASKS[id].boundary)}</p>${sourceLinks(TASKS[id])}</details>`).join('')}<p class="note">原四项来源核对：2026-10-06；新增三项：2026-10-07。<a href="岗位参考与任务映射.md">查看完整映射、限制与来源</a></p></section>`;
+  const additions = APP_INFO.newRoles.filter(id => ids.includes(id));
+  return `<header class="hero"><p class="eyebrow">VERSION ${APP_INFO.version} / ${ids.length} WORK SAMPLES</p><h1>做一小段工作，<br>看自己想不想继续。</h1><p class="lead">${ids.length} 项约 45 分钟的小任务。先澄清、动手，再接反馈、复核与交接；把完成质量和继续意愿放在一起看。</p></header>
+  ${additions.length ? `<section class="role-group"><h2>新增方向 · 需求与职责参考</h2><p class="group-note">结合公开需求报告与真实岗位职责，新增 ${additions.length} 种工作体验。趋势资料不等于本地岗位排名；<a href="新增岗位与依据.md">查看选择依据与范围</a>。</p>${roleCards(additions)}</section>` : ''}
+  <section class="role-group"><h2>原有方向 · 继续深化</h2>${roleCards(ids.filter(id => !additions.includes(id)))}</section>
+  <section class="banner"><h2>不同模拟场景，体验不同工作方式</h2><p>活动、人物、反馈和业务数据全部虚构。原活动题是校园手机摄影工作坊；安全、电商、物流与预约原型另设独立背景，规则以各题材料为准，数据不合并。</p><div class="facts"><span>先读各题 brief</span><span>独立场景 · 教学模拟</span><span>不提供学分或证书</span></div></section>
+  <section class="block"><h2>把体验做小，把证据留下</h2><ol><li>每次选一项，分天做；选最想了解的两项开始即可。第二轮换场景或倒序，观察题目与疲劳的影响。</li><li>45 分钟含最后 5 分钟体验记录。模板可以只写要点或文件位置；没有做完就写真实进度。可选加做 20 分钟另记，不占核心计时。</li><li>先独立试 10 分钟，再逐级看提示、反馈与参考。需要帮助时记录谁解释或代写了哪一部分。</li><li>计时按方向保存；切换页面会暂停，刷新保留剩余时间。计时只辅助控制范围，不评价能力。</li><li>填写不会自动上传。导出记录后可自行保存或与他人讨论；旧版答案在历史记录中保留，不会套入改版任务。</li></ol><p class="noscore">这里不计算职业适合度。一次模拟只能提供探索线索；真正的工作还包括团队协作、交付压力、反复修改和更大规模的问题。</p><div class="actions"><button data-go="${additions[0] || ids[0]}">先试一项：${esc(TASKS[additions[0] || ids[0]].name)}</button><a class="file-link" href="试玩手册.md">文字版手册</a><a class="file-link" href="审查与改进.md">本次审查与改进</a></div></section>
+  <section class="block sources"><h3>真实岗位怎样变成小练习？</h3><p>参考国内外雇主公开岗位与官方工作流程，提取可体验的动作，再裁剪到本轮范围。地区、资历和岗位侧重不同；这些样本不代表统一入门门槛或应聘结果。</p>${ids.map(id => `<details class="hint"><summary>${esc(TASKS[id].name)}：职责与来源</summary><p>${esc(TASKS[id].boundary)}</p>${sourceLinks(TASKS[id])}</details>`).join('')}<p class="note">来源核对日期按各题注明。<a href="岗位参考与任务映射.md">查看完整映射、限制与来源</a></p></section>`;
 }
 
 function timerDisplay() {
@@ -137,14 +139,14 @@ function recordLines(fields, tasks, prefix = '') {
   return lines;
 }
 function report() {
-  const lines = ['# 我的职业试玩记录 · v3', '', '活动与业务数据均为模拟。用于探索体验，不构成职业适合度结论。', '', '当前记录更新时间：' + (record.updated || '尚未保存'), '', ...recordLines(record.fields, TASKS)];
+  const lines = [`# 我的职业试玩记录 · v${APP_INFO.version}`, '', '活动与业务数据均为模拟。用于探索体验，不构成职业适合度结论。', '', '当前记录更新时间：' + (record.updated || '尚未保存'), '', ...recordLines(record.fields, TASKS)];
   record.archives.forEach((archive, index) => {
     lines.push('---', '', '# 旧版只读归档 ' + (index + 1) + ' · v1', '', '旧版题目与新版不同，以下使用旧字段与旧自查标签。', '', '旧更新时间：' + (archive.updated || '未记录'), '', ...recordLines(archive.fields, LEGACY_TASKS, '旧版 · '), '### 完整原始旧版记录', '', JSON.stringify(archive, null, 2), '');
   });
   return lines.join('\n');
 }
 function exportPanel() {
-  return `<section class="block"><h2>保存下来，继续聊</h2><p>导出后可以把记录带回本聊天。当前页面不会自动发送填写内容。Markdown 便于阅读，JSON 用于恢复，均包含旧版归档。</p><div class="actions"><button data-export="md">下载 Markdown 记录</button><button class="outline" data-export="json">下载备份 JSON</button><label class="file-link" for="import-file">恢复 JSON 备份</label><input id="import-file" type="file" accept="application/json,.json" hidden>${session.rawBackup !== null ? '<button class="outline" data-export="raw">下载受保护的原始内容</button>' : ''}</div><p class="note">v2/v3 备份只补入未填写字段，保留已写答案和明确取消的勾选；v1 完整放入只读历史。导入不会改变计时。下载未响应时展开下方文本复制。</p><details class="hint"><summary>查看并复制当前导出记录</summary><textarea class="export-preview" id="report-preview" aria-label="可复制的导出记录" readonly>${esc(report())}</textarea></details><details class="hint"><summary>查看并复制 JSON 备份</summary><textarea class="export-preview" id="json-preview" aria-label="可复制的 JSON 备份" readonly>${esc(JSON.stringify(record, null, 2))}</textarea></details></section>`;
+  return `<section class="block"><h2>保存成果，再决定下一步</h2><p>导出后可以自行保存，或挑选内容与老师、同伴、AI讨论。当前页面不会自动发送填写内容。Markdown 便于阅读，JSON 用于恢复，均包含旧版归档。</p><div class="actions"><button data-export="md">下载 Markdown 记录</button><button class="outline" data-export="json">下载备份 JSON</button><label class="file-link" for="import-file">恢复 JSON 备份</label><input id="import-file" type="file" accept="application/json,.json" hidden>${session.rawBackup !== null ? '<button class="outline" data-export="raw">下载受保护的原始内容</button>' : ''}</div><p class="note">v2及以后沿用同一记录格式，备份只补入未填写字段，保留已写答案和明确取消的勾选；v1 完整放入只读历史。导入不会改变计时。下载未响应时展开下方文本复制。</p><details class="hint"><summary>查看并复制当前导出记录</summary><textarea class="export-preview" id="report-preview" aria-label="可复制的导出记录" readonly>${esc(report())}</textarea></details><details class="hint"><summary>查看并复制 JSON 备份</summary><textarea class="export-preview" id="json-preview" aria-label="可复制的 JSON 备份" readonly>${esc(JSON.stringify(record, null, 2))}</textarea></details></section>`;
 }
 function compare() {
   return `<header class="hero"><p class="eyebrow">EVIDENCE / EXPERIENCE / NEXT STEP</p><h1>看成果，也看<br>自己愿不愿意再做。</h1><p class="lead">已记录 ${ids.filter(id => value(id + '_done')).length} 项。自查与实际证据反映本轮进度；继续意愿、帮助和环境说明体验条件，不换算成适合度。</p></header><section class="block"><h2>${ids.length} 项对照</h2><div class="table-scroll"><table><thead><tr><th>方向 / 实际成果</th><th>自查</th><th>熟悉与帮助</th><th>修改意愿</th><th>再试与状态</th></tr></thead><tbody>${ids.map(id => `<tr><td><button class="outline" data-go="${id}">${esc(labels[id])}</button><p>${esc(value(id + '_stage') || '阶段尚未记录')}</p><small>${value(id + '_done') ? '已记录本轮' : '本轮还没结束'}</small></td><td>${TASKS[id].checks.filter((_, index) => value(id + '_check_' + index) === true).length} / ${TASKS[id].checks.length}<br><small>本人勾选，非评分</small></td><td>${esc(value(id + '_familiar') || '未填熟悉程度')}<br>${esc(value(id + '_help') || '未填帮助程度')}<br><small>环境：${esc(value(id + '_setup') || '未填')} 分钟</small></td><td>${esc(value(id + '_review') || '尚未填写')}</td><td>${esc(value(id + '_again') || '未填再试意愿')}<br>${esc(value(id + '_energy') || '未填状态')}</td></tr>`).join('')}</tbody></table></div><p class="noscore">“会做”与“愿意反复做”分别观察。没体验的方向不据此排序；场景、疲劳与帮助程度会影响判断。勾选更多不代表职业更适合。</p></section>
@@ -197,8 +199,8 @@ function download(text, name, type) {
 function exportAs(kind) {
   if (kind === 'raw') {if (session.rawBackup !== null) download(session.rawBackup, '职业试玩受保护原始内容.txt', 'text/plain;charset=utf-8'); return;}
   // 导出内存中的数据不依赖浏览器写入成功。
-  if (kind === 'json') download(JSON.stringify(record, null, 2), '职业试玩记录-v3-备份.json', 'application/json;charset=utf-8');
-  else download(report(), '我的职业试玩记录-v3.md', 'text/markdown;charset=utf-8');
+  if (kind === 'json') download(JSON.stringify(record, null, 2), `职业试玩记录-v${APP_INFO.version}-备份.json`, 'application/json;charset=utf-8');
+  else download(report(), `我的职业试玩记录-v${APP_INFO.version}.md`, 'text/markdown;charset=utf-8');
 }
 document.addEventListener('click', event => {
   if (event.target.closest('.skip')) {
